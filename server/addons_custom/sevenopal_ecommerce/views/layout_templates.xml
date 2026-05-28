@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         Header top bar
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_header_top"
+        inherit_id="website.layout"
+        name="SevenOpal – Header Top Bar"
+    >
+        <xpath expr="//header" position="before">
+            <div class="so_top_bar d-none d-lg-block py-1">
+                <div class="container d-flex justify-content-between align-items-center">
+                    <div class="so_top_bar_left small">
+                        <i class="fa fa-phone me-1"/>
+                        <a href="tel:+917428222250" class="text-decoration-none">+91 74282 22250</a>
+                        <span class="mx-3">|</span>
+                        <i class="fa fa-envelope me-1"/>
+                        <a href="mailto:info@sevenopal.com" class="text-decoration-none">info@sevenopal.com</a>
+                    </div>
+                    <div class="so_top_bar_right small d-flex gap-3 align-items-center">
+                        <span>Free certificate with every purchase</span>
+                        <div class="so_social_links d-flex gap-2">
+                            <a href="#" aria-label="Facebook"><i class="fa fa-facebook"/></a>
+                            <a href="#" aria-label="Instagram"><i class="fa fa-instagram"/></a>
+                            <a href="#" aria-label="YouTube"><i class="fa fa-youtube"/></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Footer
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_footer"
+        inherit_id="website.footer_custom"
+        name="SevenOpal – Footer"
+    >
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div id="footer" t-if="not no_footer" class="so_footer">
+                <div class="so_footer_main py-5">
+                    <div class="container">
+                        <div class="row g-4">
+
+                            <!-- Brand / About -->
+                            <div class="col-lg-3 col-md-6">
+                                <div class="so_footer_brand mb-3">
+                                    <t t-if="website.logo">
+                                        <img
+                                            t-att-src="website.logo_url"
+                                            alt="Seven Opal"
+                                            style="max-height:60px; object-fit:contain;"
+                                        />
+                                    </t>
+                                    <t t-else="">
+                                        <h4 class="fw-bold">Seven Opal</h4>
+                                    </t>
+                                </div>
+                                <p class="small">
+                                    Premium Australian Opal gemstones — 100% natural, certified authentic.
+                                    Sourced directly from Australia.
+                                </p>
+                                <div class="so_social_links d-flex gap-3 mt-3">
+                                    <a href="#" aria-label="Facebook" class="so_social_link"><i class="fa fa-facebook fa-lg"/></a>
+                                    <a href="#" aria-label="Instagram" class="so_social_link"><i class="fa fa-instagram fa-lg"/></a>
+                                    <a href="#" aria-label="YouTube" class="so_social_link"><i class="fa fa-youtube fa-lg"/></a>
+                                    <a href="#" aria-label="Twitter" class="so_social_link"><i class="fa fa-twitter fa-lg"/></a>
+                                    <a href="#" aria-label="Pinterest" class="so_social_link"><i class="fa fa-pinterest fa-lg"/></a>
+                                </div>
+                            </div>
+
+                            <!-- Quick Links -->
+                            <div class="col-lg-2 col-md-6">
+                                <h5 class="so_footer_heading">Quick Links</h5>
+                                <ul class="list-unstyled so_footer_links">
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/page/about">About Us</a></li>
+                                    <li><a href="/shop">Shop</a></li>
+                                    <li><a href="/blog">Blog</a></li>
+                                    <li><a href="/contactus">Contact Us</a></li>
+                                    <li><a href="/page/careers">Careers</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Information -->
+                            <div class="col-lg-2 col-md-6">
+                                <h5 class="so_footer_heading">Information</h5>
+                                <ul class="list-unstyled so_footer_links">
+                                    <li><a href="/page/about-opal">About Opal Gemstone</a></li>
+                                    <li><a href="/page/how-to-order">How to Order</a></li>
+                                    <li><a href="/page/tips-to-buy">Tips To Buy Opal</a></li>
+                                    <li><a href="/page/events">Events And Trade Shows</a></li>
+                                    <li><a href="/page/celebrities">Celebrities wearing Opal stone</a></li>
+                                    <li><a href="/page/wholesale">Opal Wholesale</a></li>
+                                    <li><a href="/page/faq">FAQs</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Visit to shop -->
+                            <div class="col-lg-2 col-md-6">
+                                <h5 class="so_footer_heading">Visit to Shop</h5>
+                                <ul class="list-unstyled so_footer_links">
+                                    <li><a href="/page/custom-payment">Custom Payment</a></li>
+                                    <li><a href="/page/privacy">Privacy Policy</a></li>
+                                    <li><a href="/page/returns">Return And Refund Policy</a></li>
+                                    <li><a href="/page/shipping">Shipping &amp; Delivery</a></li>
+                                    <li><a href="/page/terms">Terms and Conditions</a></li>
+                                    <li><a href="/page/track-order">Track your order</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- Contact + Certificate Verify -->
+                            <div class="col-lg-3">
+                                <h5 class="so_footer_heading">Contact</h5>
+                                <ul class="list-unstyled so_footer_links mb-4">
+                                    <li class="mb-1"><i class="fa fa-phone me-2 text-muted"/><a href="tel:+919425118512">+91-9425118512</a></li>
+                                    <li class="mb-1"><i class="fa fa-phone me-2 text-muted"/><a href="tel:+918718806652">+91-8718806652</a></li>
+                                    <li class="mb-1"><i class="fa fa-envelope me-2 text-muted"/><a href="mailto:info@sevenopal.com">info@sevenopal.com</a></li>
+                                    <li class="mb-1"><i class="fa fa-envelope me-2 text-muted"/><a href="mailto:satyamsevenopals@gmail.com">satyamsevenopals@gmail.com</a></li>
+                                </ul>
+                                <h6 class="so_footer_heading" style="font-size:0.78rem;">Verify Your Certificate</h6>
+                                <form class="d-flex gap-2" action="/page/verify-certificate" method="get">
+                                    <input
+                                        type="text"
+                                        name="cert_id"
+                                        class="form-control form-control-sm"
+                                        placeholder="Certificate ID"
+                                    />
+                                    <button type="submit" class="btn btn-danger btn-sm px-3">
+                                        <i class="fa fa-search"/>
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment icons bar -->
+                <div class="so_footer_payment_bar py-2" style="background:#08090c; border-top:1px solid #2c2f38;">
+                    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-2 flex-wrap align-items-center">
+                            <small class="text-muted">Secure payments:</small>
+                            <span class="badge bg-secondary"><i class="fa fa-cc-visa"/> Visa</span>
+                            <span class="badge bg-secondary"><i class="fa fa-cc-mastercard"/> MC</span>
+                            <span class="badge bg-secondary">Skrill</span>
+                            <span class="badge bg-secondary"><i class="fa fa-paypal"/> PayPal</span>
+                            <span class="badge bg-secondary">UPI</span>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center">
+                            <small class="text-muted">Stay connected:</small>
+                            <a href="#" class="so_social_link"><i class="fa fa-facebook"/></a>
+                            <a href="#" class="so_social_link"><i class="fa fa-twitter"/></a>
+                            <a href="#" class="so_social_link"><i class="fa fa-instagram"/></a>
+                            <a href="#" class="so_social_link"><i class="fa fa-pinterest"/></a>
+                            <a href="#" class="so_social_link"><i class="fa fa-youtube"/></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer bottom bar -->
+                <div class="so_footer_bottom py-3">
+                    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <span class="small">© <t t-out="date.today().year"/> Seven Opal. All rights reserved.</span>
+                        <span class="small">Designed by <a href="https://digimonk.in" target="_blank" rel="noopener">Digimonk</a></span>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Shop / Category sidebar — weight filters
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_shop_filters"
+        inherit_id="website_sale.o_wsale_offcanvas"
+        name="SevenOpal – Weight Filters"
+    >
+        <xpath expr="//div[@id='o_wsale_offcanvas_content']" position="inside">
+            <div class="so_weight_filters mt-4">
+                <h6 class="fw-bold text-uppercase mb-3 small" style="color:#c0392b; letter-spacing:0.08em;">
+                    By Weight In Carat
+                </h6>
+                <div class="so_range_filter d-flex gap-2 align-items-center mb-3">
+                    <input
+                        type="number"
+                        class="form-control form-control-sm so_min_carat"
+                        placeholder="Min"
+                        min="0"
+                        step="0.1"
+                    />
+                    <span class="text-muted">—</span>
+                    <input
+                        type="number"
+                        class="form-control form-control-sm so_max_carat"
+                        placeholder="Max"
+                        step="0.1"
+                    />
+                </div>
+                <h6 class="fw-bold text-uppercase mb-3 small" style="color:#c0392b; letter-spacing:0.08em;">
+                    By Weight In Ratti
+                </h6>
+                <div class="so_range_filter d-flex gap-2 align-items-center mb-3">
+                    <input
+                        type="number"
+                        class="form-control form-control-sm so_min_ratti"
+                        placeholder="Min"
+                        min="0"
+                        step="0.1"
+                    />
+                    <span class="text-muted">—</span>
+                    <input
+                        type="number"
+                        class="form-control form-control-sm so_max_ratti"
+                        placeholder="Max"
+                        step="0.1"
+                    />
+                </div>
+                <button class="btn btn-danger btn-sm w-100 so_apply_weight_filter">
+                    Apply Filter
+                </button>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product card — discount badge + out-of-stock overlay
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_card_badges"
+        inherit_id="website_sale.products_item"
+        name="SevenOpal – Product Card Badges"
+    >
+        <!-- Inject badges — positioned absolute over the image via CSS -->
+        <xpath expr="//div[hasclass('o_wsale_product_information')]" position="before">
+            <div class="so_card_badge_layer">
+                <!-- % OFF badge -->
+                <t t-if="product.compare_list_price and product.compare_list_price > product.list_price">
+                    <t t-set="so_disc" t-value="int((1 - product.list_price / product.compare_list_price) * 100)"/>
+                    <div class="so_discount_badge" t-if="so_disc > 0">
+                        <t t-out="str(so_disc)"/>% OFF
+                    </div>
+                </t>
+                <!-- Label badges: Hot / New / Sale -->
+                <t t-if="product.so_label_hot">
+                    <div class="so_label_badge so_label_hot">Hot</div>
+                </t>
+                <t t-elif="product.so_label_new">
+                    <div class="so_label_badge so_label_new_badge">New</div>
+                </t>
+                <t t-elif="product.so_label_sale">
+                    <div class="so_label_badge so_label_sale_badge">Sale</div>
+                </t>
+                <!-- Out of Stock overlay -->
+                <t t-if="product.type in ('product', 'consu') and product._fields.get('virtual_available') and product.virtual_available &lt;= 0">
+                    <div class="so_out_of_stock_overlay">
+                        <span>Out of Stock</span>
+                    </div>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product card — "Total" prefix in price div
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_card_total"
+        inherit_id="website_sale.products_item"
+        name="SevenOpal – Product Card Total Prefix"
+    >
+        <xpath expr="//div[hasclass('product_price')]/span[hasclass('fw-bold')]" position="before">
+            <t t-if="product.so_weight_carat or product.so_price_per_carat">
+                <span class="so_card_price_label">Total&#160;</span>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product card — weight info + price/carat + Buy Now
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_card_weight"
+        inherit_id="website_sale.products_item"
+        name="SevenOpal – Product Card Info"
+    >
+        <xpath expr="//div[hasclass('product_price')]" position="after">
+            <!-- Price per carat (green) -->
+            <t t-if="product.so_price_per_carat">
+                <div class="so_card_ppc">
+                    &#8377;<t t-out="'{:,.0f}'.format(product.so_price_per_carat)"/>/carat
+                </div>
+            </t>
+            <!-- Weight (muted) -->
+            <t t-if="product.so_weight_carat">
+                <div class="so_card_weight text-muted">
+                    <t t-out="'%.2f' % product.so_weight_carat"/> Carat
+                    <t t-if="product.so_weight_ratti">
+                        / <t t-out="'%.2f' % product.so_weight_ratti"/> Ratti
+                    </t>
+                </div>
+            </t>
+            <!-- Buy Now button -->
+            <div class="so_card_buynow_wrap mt-2">
+                <a t-attf-href="/shop/product/{{ product.id }}"
+                   class="btn btn-danger btn-sm w-100 so_card_buynow">
+                    Buy Now
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Trust bar below main shop header
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_trust_bar"
+        inherit_id="website_sale.products"
+        name="SevenOpal – Shop Trust Bar"
+    >
+        <xpath expr="//div[hasclass('o_wsale_products_page')]" position="before">
+            <div class="so_trust_bar py-3" style="background:#16191f; border-bottom:1px solid #2c2f38;">
+                <div class="container">
+                    <div class="row g-2 text-center">
+                        <div class="col-6 col-md-3">
+                            <div class="so_trust_item d-flex align-items-center gap-2 justify-content-center">
+                                <i class="fa fa-truck" style="color:#c0392b; font-size:1.2rem;"/>
+                                <div class="text-start">
+                                    <div class="small fw-bold" style="color:#e8e8e8;">Worldwide Shipping</div>
+                                    <div style="font-size:0.7rem; color:#8a8f9a;">We deliver around the world</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="so_trust_item d-flex align-items-center gap-2 justify-content-center">
+                                <i class="fa fa-refresh" style="color:#c0392b; font-size:1.2rem;"/>
+                                <div class="text-start">
+                                    <div class="small fw-bold" style="color:#e8e8e8;">Easy returns</div>
+                                    <div style="font-size:0.7rem; color:#8a8f9a;">3 Days return policy</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="so_trust_item d-flex align-items-center gap-2 justify-content-center">
+                                <i class="fa fa-lock" style="color:#c0392b; font-size:1.2rem;"/>
+                                <div class="text-start">
+                                    <div class="small fw-bold" style="color:#e8e8e8;">100% Secure Payment</div>
+                                    <div style="font-size:0.7rem; color:#8a8f9a;">Guarantee secure payments</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="so_trust_item d-flex align-items-center gap-2 justify-content-center">
+                                <i class="fa fa-headphones" style="color:#c0392b; font-size:1.2rem;"/>
+                                <div class="text-start">
+                                    <div class="small fw-bold" style="color:#e8e8e8;">24/7 Dedicated Support</div>
+                                    <div style="font-size:0.7rem; color:#8a8f9a;">Assistance &amp; anytime</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         WhatsApp floating chat button
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_whatsapp_button"
+        inherit_id="website.layout"
+        name="SevenOpal – WhatsApp Button"
+    >
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <a
+                href="https://wa.me/917428222250"
+                target="_blank"
+                rel="noopener"
+                class="so_whatsapp_btn"
+                aria-label="Chat on WhatsApp"
+                title="Chat with us on WhatsApp"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28" aria-hidden="true">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <span class="so_whatsapp_label">Chat Now</span>
+            </a>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Cart page — dark theme wrapper
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_cart_page"
+        inherit_id="website_sale.cart"
+        name="SevenOpal – Cart Dark Theme"
+    >
+        <xpath expr="//div[@id='shop_cart']" position="attributes">
+            <attribute name="class" add="so_cart_page"/>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Checkout — dark theme wrapper
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_checkout_page"
+        inherit_id="website_sale.checkout"
+        name="SevenOpal – Checkout Dark Theme"
+    >
+        <xpath expr="//div[@id='shop_checkout']" position="before">
+            <div class="so_checkout_header py-3 mb-3" style="border-bottom:1px solid #2c2f38;">
+                <div class="container">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="fa fa-lock" style="color:#c0392b; font-size:1.2rem;"/>
+                        <span class="small fw-bold" style="color:#e8e8e8;">Secure Checkout – Your information is encrypted &amp; safe</span>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product detail — tabbed spec section
+         Injects "Product Details | Description | Reviews" tab nav
+         above the accordion items
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_detail_tabs"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Product Detail Tab Nav"
+    >
+        <xpath expr="//div[@id='product_details']" position="before">
+            <div class="so_detail_tabs_nav container">
+                <div class="so_detail_tab_strip d-flex gap-0">
+                    <button class="so_detail_tab_btn so_detail_tab_active"
+                            onclick="soTabSwitch(this,'so_tab_specs')">
+                        Product Details
+                    </button>
+                    <button class="so_detail_tab_btn"
+                            onclick="soTabSwitch(this,'so_tab_desc')">
+                        Description
+                    </button>
+                    <button class="so_detail_tab_btn"
+                            onclick="soTabSwitch(this,'so_tab_reviews')">
+                        Reviews
+                    </button>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product detail — CTA button bar improvements
+         Adds an extra "Buy Now" button beside "Add to Cart"
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_cta_bar"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Product CTA Buttons"
+    >
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="attributes">
+            <attribute name="class" add="so_cta_section"/>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Shop — category header title
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_shop_header"
+        inherit_id="website_sale.products"
+        name="SevenOpal – Shop Header"
+    >
+        <xpath expr="//div[hasclass('o_wsale_products_page')]" position="attributes">
+            <attribute name="class" add="so_shop_page"/>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,588 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         Macro: mini product card (reused across sections)
+    ══════════════════════════════════════════════════════════ -->
+    <template id="so_mini_product_card" name="SevenOpal – Mini Product Card">
+        <t t-set="prod" t-value="prod"/>
+        <div class="col-6 col-md-4 col-lg-3">
+            <a t-attf-href="/shop/product/{{ prod.id }}"
+               class="so_product_card text-decoration-none d-block h-100">
+                <div class="so_product_card_img_wrap" style="position:relative; overflow:hidden;">
+                    <!-- Discount badge -->
+                    <t t-if="prod.compare_list_price and prod.compare_list_price > prod.list_price">
+                        <t t-set="disc" t-value="int((1 - prod.list_price / prod.compare_list_price) * 100)"/>
+                        <div class="so_discount_badge" t-if="disc > 0">
+                            <t t-out="str(disc)"/>% OFF
+                        </div>
+                    </t>
+                    <t t-if="prod.so_label_hot"><div class="so_label_badge so_label_hot">Hot</div></t>
+                    <t t-elif="prod.so_label_new"><div class="so_label_badge so_label_new_badge">New</div></t>
+                    <t t-elif="prod.so_label_sale"><div class="so_label_badge so_label_sale_badge">Sale</div></t>
+                    <!-- Out of stock -->
+                    <t t-if="prod.type in ('product', 'consu') and prod._fields.get('virtual_available') and prod.virtual_available &lt;= 0">
+                        <div class="so_out_of_stock_overlay"><span>Out of Stock</span></div>
+                    </t>
+                    <img
+                        t-attf-src="/web/image/product.template/{{ prod.id }}/image_512"
+                        t-att-alt="prod.name"
+                        class="img-fluid w-100 so_product_card_img"
+                        style="height:200px; object-fit:cover;"
+                    />
+                </div>
+                <div class="so_product_card_body p-3">
+                    <h6 class="so_product_card_name mb-1" t-out="prod.name"/>
+                    <!-- Price row -->
+                    <div class="d-flex align-items-baseline gap-2 flex-wrap mb-1">
+                        <span class="so_product_card_total fw-bold">
+                            Total ₹<t t-out="'{:,.0f}'.format(prod.so_total_price or prod.list_price)"/>
+                        </span>
+                        <t t-if="prod.compare_list_price and prod.compare_list_price > prod.list_price">
+                            <span class="so_product_card_compare">
+                                ₹<t t-out="'{:,.0f}'.format(prod.compare_list_price)"/>
+                            </span>
+                        </t>
+                    </div>
+                    <t t-if="prod.so_price_per_carat">
+                        <div class="so_card_ppc mb-1">
+                            ₹<t t-out="'%.0f' % prod.so_price_per_carat"/>/carat
+                        </div>
+                    </t>
+                    <t t-if="prod.so_weight_carat">
+                        <div class="so_card_weight text-muted">
+                            <t t-out="'%.2f' % prod.so_weight_carat"/> Carat
+                            <t t-if="prod.so_weight_ratti">
+                                / <t t-out="'%.2f' % prod.so_weight_ratti"/> Ratti
+                            </t>
+                        </div>
+                    </t>
+                    <div class="mt-2">
+                        <span class="btn btn-danger btn-sm w-100">Buy Now</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         SevenOpal Homepage
+    ══════════════════════════════════════════════════════════ -->
+    <template id="sevenopal_homepage" name="SevenOpal Home" customize_show="False">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+
+                <!-- ── HERO BANNER ───────────────────────────── -->
+                <section class="so_hero_section"
+                    style="background: linear-gradient(135deg, #0d0f13 0%, #1a0a09 100%); min-height:460px; display:flex; align-items:center;">
+                    <div class="container py-5">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6 text-white">
+                                <p class="so_hero_tagline mb-2" style="color:#c0392b; font-style:italic; font-size:1rem; letter-spacing:0.04em;">
+                                    The colors of nature...
+                                </p>
+                                <h1 class="so_hero_title display-4 fw-bold mb-2">
+                                    Natural<br/>
+                                    <span style="color:#c0392b;">Australian Fire Opal</span>
+                                </h1>
+                                <p class="so_hero_sub mb-4" style="color:#c9c9c9; font-style:italic;">
+                                    Guaranteed results with extraordinary gemstones
+                                </p>
+                                <!-- Trust badges row -->
+                                <div class="so_hero_badges d-flex flex-wrap gap-3 mb-4">
+                                    <div class="so_hero_badge">
+                                        <div class="so_hero_badge_stars">★★★★★</div>
+                                        <div class="so_hero_badge_label">4.9 Rating</div>
+                                    </div>
+                                    <div class="so_hero_badge">
+                                        <div class="so_hero_badge_num" style="color:#c0392b;">10,000+</div>
+                                        <div class="so_hero_badge_label">Happy Clients</div>
+                                    </div>
+                                    <div class="so_hero_badge">
+                                        <div class="so_hero_badge_num" style="color:#c0392b;">100%</div>
+                                        <div class="so_hero_badge_label">Certified Stones</div>
+                                    </div>
+                                </div>
+                                <a href="/shop" class="btn btn-danger btn-lg px-5 me-2">Shop Now</a>
+                                <a href="/page/about" class="btn btn-outline-light btn-lg px-4">About Us</a>
+                            </div>
+                            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                                <div class="so_hero_image_placeholder"
+                                     style="height:320px; background:rgba(192,57,43,0.07); border-radius:16px; display:flex; align-items:center; justify-content:center; border:2px solid rgba(192,57,43,0.2);">
+                                    <span style="font-size:7rem;">💎</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── TRUST / FEATURES BAR ─────────────────── -->
+                <section style="background:#16191f; border-top:1px solid #2c2f38; border-bottom:1px solid #2c2f38;">
+                    <div class="container py-3">
+                        <div class="row g-2 text-center">
+                            <div class="col-6 col-md-3">
+                                <div class="so_trust_item_hp d-flex align-items-center gap-2 justify-content-center">
+                                    <i class="fa fa-truck" style="color:#c0392b; font-size:1.4rem;"/>
+                                    <div class="text-start">
+                                        <div class="small fw-bold" style="color:#e8e8e8;">Worldwide Shipping</div>
+                                        <div style="font-size:0.7rem; color:#8a8f9a;">We deliver around the world</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_trust_item_hp d-flex align-items-center gap-2 justify-content-center">
+                                    <i class="fa fa-refresh" style="color:#c0392b; font-size:1.4rem;"/>
+                                    <div class="text-start">
+                                        <div class="small fw-bold" style="color:#e8e8e8;">Easy returns</div>
+                                        <div style="font-size:0.7rem; color:#8a8f9a;">3 Days return policy</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_trust_item_hp d-flex align-items-center gap-2 justify-content-center">
+                                    <i class="fa fa-lock" style="color:#c0392b; font-size:1.4rem;"/>
+                                    <div class="text-start">
+                                        <div class="small fw-bold" style="color:#e8e8e8;">100% Secure Payment</div>
+                                        <div style="font-size:0.7rem; color:#8a8f9a;">Guarantee secure payments</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_trust_item_hp d-flex align-items-center gap-2 justify-content-center">
+                                    <i class="fa fa-smile-o" style="color:#c0392b; font-size:1.4rem;"/>
+                                    <div class="text-start">
+                                        <div class="small fw-bold" style="color:#e8e8e8;">Happy Customers</div>
+                                        <div style="font-size:0.7rem; color:#8a8f9a;">10000+ Happy Clients</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── OUR MANUFACTURING OVERVIEW ────────────── -->
+                <section class="so_mfg_section py-5" style="background:#111318;">
+                    <div class="container">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-5">
+                                <!-- Video placeholder -->
+                                <div class="so_mfg_video ratio ratio-16x9"
+                                     style="background:#1c1f26; border-radius:12px; border:1px solid #2c2f38; overflow:hidden;">
+                                    <div style="display:flex; align-items:center; justify-content:center; background:#1c1f26;">
+                                        <div class="text-center">
+                                            <i class="fa fa-play-circle fa-5x" style="color:#c0392b; opacity:0.7;"/>
+                                            <p class="mt-2 text-muted small">Manufacturing Overview Video</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-7">
+                                <h2 class="so_section_heading text-start mb-1">Our Manufacturing Overview</h2>
+                                <p class="mb-3" style="font-style:italic; color:#c0392b; font-size:0.95rem;">
+                                    We are Miner and Manufacturer of Australian Opal and not the Trader
+                                </p>
+                                <p style="color:#c9c9c9; line-height:1.8;">
+                                    Seven Opal is the leading producer of Original &amp; Certified Australian Opals
+                                    in Free sizes and Calibrated sizes. Seven Opal holds our own mining in Coober
+                                    Pedy Australia. As we are the direct importer of Fire Opals from Australian Mines,
+                                    hence we are able to provide best quality opals at wholesale price all over the World.
+                                    We specialize in mining, cutting, polishing and grading of Australian Opals.
+                                </p>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-6">
+                                        <div class="so_mfg_stat p-3"
+                                             style="background:#1c1f26; border-radius:8px; border:1px solid #2c2f38; text-align:center;">
+                                            <div style="font-size:1.6rem; font-weight:700; color:#c0392b;">10,000+</div>
+                                            <div style="font-size:0.8rem; color:#8a8f9a;">Happy Customers</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="so_mfg_stat p-3"
+                                             style="background:#1c1f26; border-radius:8px; border:1px solid #2c2f38; text-align:center;">
+                                            <div style="font-size:1.6rem; font-weight:700; color:#c0392b;">100%</div>
+                                            <div style="font-size:0.8rem; color:#8a8f9a;">Natural &amp; Certified</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="so_mfg_stat p-3"
+                                             style="background:#1c1f26; border-radius:8px; border:1px solid #2c2f38; text-align:center;">
+                                            <div style="font-size:1.6rem; font-weight:700; color:#c0392b;">15+</div>
+                                            <div style="font-size:0.8rem; color:#8a8f9a;">Years Experience</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="so_mfg_stat p-3"
+                                             style="background:#1c1f26; border-radius:8px; border:1px solid #2c2f38; text-align:center;">
+                                            <div style="font-size:1.6rem; font-weight:700; color:#c0392b;">50+</div>
+                                            <div style="font-size:0.8rem; color:#8a8f9a;">Countries Served</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── BROWSE BY CATEGORY ────────────────────── -->
+                <section class="so_categories_section py-5" style="background:#16191f;">
+                    <div class="container">
+                        <h2 class="so_section_heading text-center mb-4">Browse by Category</h2>
+                        <div class="row g-3 justify-content-center" id="so_category_grid">
+                            <t t-foreach="so_categories" t-as="cat">
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a class="so_cat_card text-decoration-none d-block text-center"
+                                       t-att-href="'/shop/category/%s' % cat.id">
+                                        <div class="so_cat_img_wrap mb-2">
+                                            <t t-if="cat.image_128">
+                                                <img
+                                                    t-att-src="'/web/image/product.public.category/%s/image_128' % cat.id"
+                                                    t-att-alt="cat.name"
+                                                    class="img-fluid"
+                                                    style="max-height:80px; object-fit:contain;"
+                                                />
+                                            </t>
+                                            <t t-else="">
+                                                <div class="so_cat_placeholder"><i class="fa fa-gem fa-2x"/></div>
+                                            </t>
+                                        </div>
+                                        <span class="so_cat_name" t-out="cat.name"/>
+                                    </a>
+                                </div>
+                            </t>
+                            <t t-if="not so_categories">
+                                <!-- fallback static categories -->
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="/shop?search=fire+opal" class="so_cat_card text-decoration-none d-block text-center">
+                                        <div class="so_cat_placeholder mb-2"><i class="fa fa-fire fa-2x" style="color:#c0392b;"/></div>
+                                        <span class="so_cat_name">Opal With Fire</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="/shop?search=calibrated" class="so_cat_card text-decoration-none d-block text-center">
+                                        <div class="so_cat_placeholder mb-2"><i class="fa fa-th fa-2x" style="color:#c0392b;"/></div>
+                                        <span class="so_cat_name">Calibrated Size</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="/shop?search=jewellery" class="so_cat_card text-decoration-none d-block text-center">
+                                        <div class="so_cat_placeholder mb-2"><i class="fa fa-diamond fa-2x" style="color:#c0392b;"/></div>
+                                        <span class="so_cat_name">Opal Jewellery</span>
+                                    </a>
+                                </div>
+                                <div class="col-6 col-md-3 col-lg-2">
+                                    <a href="/shop?search=pair" class="so_cat_card text-decoration-none d-block text-center">
+                                        <div class="so_cat_placeholder mb-2"><i class="fa fa-circle fa-2x" style="color:#c0392b;"/></div>
+                                        <span class="so_cat_name">Opal Pair</span>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── AUSTRALIAN FIRE OPAL — NEW COLLECTION ─── -->
+                <t t-if="so_fire_opal or so_featured_products">
+                    <section class="so_collection_section py-5" style="background:#111318;">
+                        <div class="container">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="so_section_heading text-start mb-0">
+                                    Australian Fire Opal – New Collection
+                                </h2>
+                                <a href="/shop" class="btn btn-outline-danger btn-sm">View All</a>
+                            </div>
+                            <div class="row g-3">
+                                <t t-set="display_products" t-value="so_fire_opal or so_featured_products"/>
+                                <t t-foreach="display_products[:8]" t-as="prod">
+                                    <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+
+                <!-- ── CALIBRATED SIZE OPAL ──────────────────── -->
+                <t t-if="so_calibrated">
+                    <section class="so_collection_section py-5" style="background:#16191f;">
+                        <div class="container">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="so_section_heading text-start mb-0">Calibrated Size Opal</h2>
+                                <a href="/shop" class="btn btn-outline-danger btn-sm">View All</a>
+                            </div>
+                            <div class="row g-3">
+                                <t t-foreach="so_calibrated[:8]" t-as="prod">
+                                    <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+
+                <!-- ── NEW ARRIVAL / BEST SELLER TABS ─────────── -->
+                <t t-if="so_new_arrivals">
+                    <section class="so_tabs_section py-5" style="background:#111318; border-top:1px solid #2c2f38;">
+                        <div class="container">
+                            <!-- Tab nav -->
+                            <ul class="so_tab_nav d-flex flex-wrap gap-1 mb-4 p-0 list-unstyled">
+                                <li>
+                                    <button class="so_tab_btn so_tab_btn_active" data-tab="new_arrival">
+                                        New Arrival
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="so_tab_btn" data-tab="best_seller">
+                                        Best Sellers
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="so_tab_btn" data-tab="special">
+                                        Special Offer
+                                    </button>
+                                </li>
+                            </ul>
+                            <!-- New Arrival panel -->
+                            <div class="so_tab_panel" id="so_tab_new_arrival">
+                                <div class="row g-3">
+                                    <t t-foreach="so_new_arrivals[:8]" t-as="prod">
+                                        <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                    </t>
+                                </div>
+                            </div>
+                            <!-- Best Seller panel (loaded from featured) -->
+                            <div class="so_tab_panel d-none" id="so_tab_best_seller">
+                                <div class="row g-3">
+                                    <t t-foreach="so_featured_products[:8]" t-as="prod">
+                                        <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                    </t>
+                                </div>
+                            </div>
+                            <!-- Special Offer panel -->
+                            <div class="so_tab_panel d-none" id="so_tab_special">
+                                <div class="row g-3">
+                                    <t t-foreach="so_new_arrivals[:8]" t-as="prod">
+                                        <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+
+                <!-- ── ENQUIRY FORM ──────────────────────────── -->
+                <section class="so_enquiry_section py-5" style="background:#111318; border-top:1px solid #2c2f38;">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <h2 class="so_section_heading text-center mb-4">Enquiry Form</h2>
+                                <div class="so_enquiry_card p-4 p-md-5"
+                                     style="background:#1c1f26; border-radius:12px; border:1px solid #2c2f38;">
+                                    <form action="/contactus" method="post" class="so_enquiry_form">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <input type="text" name="name" class="form-control" placeholder="Your Name" required="1"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="email" name="email" class="form-control" placeholder="Your Email" required="1"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="tel" name="phone" class="form-control" placeholder="Phone / WhatsApp"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="text" name="subject" class="form-control" placeholder="Subject"/>
+                                            </div>
+                                            <div class="col-12">
+                                                <textarea name="description" class="form-control" rows="4" placeholder="Your Message / Requirements"/>
+                                            </div>
+                                            <div class="col-12 text-center">
+                                                <button type="submit" class="btn btn-danger px-5">Send Enquiry</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── OPAL JEWELLERY ────────────────────────── -->
+                <t t-if="so_jewellery">
+                    <section class="so_collection_section py-5" style="background:#16191f;">
+                        <div class="container">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h2 class="so_section_heading text-start mb-0">Opal Jewellery</h2>
+                                <a href="/shop" class="btn btn-outline-danger btn-sm">View All</a>
+                            </div>
+                            <div class="row g-3">
+                                <t t-foreach="so_jewellery[:6]" t-as="prod">
+                                    <t t-call="sevenopal_ecommerce.so_mini_product_card"/>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+
+                <!-- ── TESTIMONIALS ──────────────────────────── -->
+                <section class="so_testimonials_section py-5" style="background:#111318;">
+                    <div class="container">
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <h2 class="so_section_heading text-start mb-4">What Wholesalers Say About Us</h2>
+                                <div class="row g-3">
+                                    <t t-foreach="range(3)" t-as="i">
+                                        <div class="col-12">
+                                            <div class="so_review_card p-4">
+                                                <div class="so_review_stars text-warning mb-2">★★★★★</div>
+                                                <p class="so_review_text">
+                                                    Absolutely beautiful opal stones. The quality is exceptional
+                                                    and the certification gives great peace of mind. Seven Opal is
+                                                    our trusted supplier for over 5 years.
+                                                </p>
+                                                <div class="so_review_author mt-3 d-flex align-items-center gap-2">
+                                                    <div class="so_review_avatar">
+                                                        <i class="fa fa-user-circle fa-2x text-muted"/>
+                                                    </div>
+                                                    <div>
+                                                        <strong class="d-block">Wholesale Customer</strong>
+                                                        <small class="text-muted">Google Review</small>
+                                                    </div>
+                                                    <img
+                                                        src="/sevenopal_ecommerce/static/src/img/google_logo.svg"
+                                                        alt="Google"
+                                                        class="ms-auto"
+                                                        style="height:18px; opacity:0.7;"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <h2 class="so_section_heading text-start mb-4">Message from Director Desk</h2>
+                                <div class="so_director_card p-4"
+                                     style="background:#1c1f26; border-radius:12px; border:1px solid #2c2f38; height:100%;">
+                                    <div class="d-flex align-items-start gap-4 mb-4">
+                                        <div class="so_director_avatar"
+                                             style="width:80px; height:80px; background:#c0392b20; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; border:2px solid #c0392b;">
+                                            <i class="fa fa-user fa-2x" style="color:#c0392b;"/>
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1" style="color:#e8e8e8;">Director, Seven Opal</h5>
+                                            <small class="text-muted">Miner &amp; Manufacturer of Australian Opal</small>
+                                        </div>
+                                    </div>
+                                    <p style="color:#c9c9c9; line-height:1.8; font-style:italic;">
+                                        "Our mission at Seven Opal is to bring the finest Australian Opals directly
+                                        from our mines to your hands. We believe in transparency, quality, and building
+                                        long-term relationships with our customers worldwide. Every stone we sell is
+                                        100% natural, untreated, and comes with a free certification."
+                                    </p>
+                                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                                        <span class="badge" style="background:#c0392b;">Miner</span>
+                                        <span class="badge" style="background:#c0392b;">Manufacturer</span>
+                                        <span class="badge" style="background:#c0392b;">Exporter</span>
+                                        <span class="badge" style="background:#c0392b;">GIA Certified</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── ORIGINAL OPAL INFO ────────────────────── -->
+                <section class="so_info_section py-5" style="background:#16191f; border-top:1px solid #2c2f38;">
+                    <div class="container">
+                        <h2 class="so_section_heading text-center mb-5">
+                            Original Australian Opal: Untreated, Unheated &amp; Certified
+                        </h2>
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="so_info_card p-4 h-100">
+                                    <i class="fa fa-gem fa-2x mb-3" style="color:#c0392b;"/>
+                                    <h5>Opal Stone Benefits &amp; Usage</h5>
+                                    <p class="text-muted small">
+                                        Opal is associated with creativity, inspiration, and emotional healing.
+                                        It enhances positive emotions and helps in astrology for Venus planet blessings.
+                                    </p>
+                                    <a href="/page/benefits" class="so_info_link">Read More →</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="so_info_card p-4 h-100">
+                                    <i class="fa fa-shield fa-2x mb-3" style="color:#c0392b;"/>
+                                    <h5>100% Trust &amp; Satisfaction</h5>
+                                    <p class="text-muted small">
+                                        Every opal is verified by our expert gemologists. We provide Government
+                                        registered laboratory certification with each purchase.
+                                    </p>
+                                    <a href="/page/about" class="so_info_link">Read More →</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="so_info_card p-4 h-100">
+                                    <i class="fa fa-certificate fa-2x mb-3" style="color:#c0392b;"/>
+                                    <h5>Certification</h5>
+                                    <p class="text-muted small">
+                                        Free LAB Certified by the Opal Association of Australia.
+                                        GIA graded stones available. Grading based on play-of-color, clarity, and cut.
+                                    </p>
+                                    <a href="/page/certification" class="so_info_link">Read More →</a>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="so_info_card p-4 h-100">
+                                    <i class="fa fa-star fa-2x mb-3" style="color:#c0392b;"/>
+                                    <h5>Celebrities Wearing Opal</h5>
+                                    <p class="text-muted small">
+                                        From Hollywood to Bollywood, opal has been the gemstone of choice
+                                        for celebrities and royalty worldwide for centuries.
+                                    </p>
+                                    <a href="/page/celebrities" class="so_info_link">Read More →</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ── MEMBERSHIPS &amp; CERTIFICATIONS ────────── -->
+                <section class="so_cert_section py-5" style="background:#111318; border-top:1px solid #2c2f38;">
+                    <div class="container">
+                        <h2 class="so_section_heading text-center mb-5">Memberships &amp; Certifications</h2>
+                        <div class="row g-4 justify-content-center text-center">
+                            <div class="col-6 col-md-3">
+                                <div class="so_cert_badge p-4"
+                                     style="background:#1c1f26; border-radius:10px; border:1px solid #2c2f38;">
+                                    <i class="fa fa-certificate fa-3x mb-3" style="color:#c0392b;"/>
+                                    <div class="small fw-bold">Opal Association<br/>of Australia</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_cert_badge p-4"
+                                     style="background:#1c1f26; border-radius:10px; border:1px solid #2c2f38;">
+                                    <i class="fa fa-award fa-3x mb-3" style="color:#c0392b;"/>
+                                    <div class="small fw-bold">GIA Certified<br/>Gemologist</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_cert_badge p-4"
+                                     style="background:#1c1f26; border-radius:10px; border:1px solid #2c2f38;">
+                                    <i class="fa fa-globe fa-3x mb-3" style="color:#c0392b;"/>
+                                    <div class="small fw-bold">International<br/>Gem Society</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="so_cert_badge p-4"
+                                     style="background:#1c1f26; border-radius:10px; border:1px solid #2c2f38;">
+                                    <i class="fa fa-check-circle fa-3x mb-3" style="color:#c0392b;"/>
+                                    <div class="small fw-bold">Government<br/>Registered Lab</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>

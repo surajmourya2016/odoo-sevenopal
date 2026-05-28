@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Inject certification + ornament options into the product detail form,
+        just before the CTA (Add to Cart / Buy Now) section.
+    -->
+    <template
+        id="sevenopal_product_options"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Certification &amp; Ornament Options"
+    >
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="before">
+
+            <!-- ═══════════════════════════════════════════════
+                 CERTIFICATION SECTION
+            ════════════════════════════════════════════════ -->
+            <t t-if="product.so_enable_certification and product.so_certificate_ids">
+                <div class="o_wsale_product_details_content_section so_certification_section mb-4">
+                    <label class="so_section_title fw-bold text-uppercase mb-2 d-block">
+                        Certification
+                    </label>
+                    <select
+                        name="so_certificate_id"
+                        class="form-select so_certificate_select"
+                        data-role="so_certificate"
+                    >
+                        <option value="">-- Please Select --</option>
+                        <t t-foreach="product.so_certificate_ids" t-as="cert">
+                            <option
+                                t-att-value="cert.id"
+                                t-att-data-charge="cert.charge"
+                                t-att-data-type="cert.cert_type"
+                            >
+                                <t t-if="cert.cert_type == 'free'">
+                                    <t t-out="cert.name"/> (Free)
+                                </t>
+                                <t t-else="">
+                                    <t t-out="cert.name"/> (+<t t-out="'₹%.0f' % cert.charge"/>)
+                                </t>
+                            </option>
+                        </t>
+                    </select>
+                    <input type="hidden" name="so_certificate_id" class="so_certificate_hidden" value=""/>
+                </div>
+            </t>
+
+            <!-- ═══════════════════════════════════════════════
+                 SELECT FOR RING / PENDANT SECTION
+            ════════════════════════════════════════════════ -->
+            <t t-if="product.so_enable_ornament and product.so_ornament_ids">
+                <div class="o_wsale_product_details_content_section so_ornament_section mb-4">
+                    <label class="so_section_title fw-bold text-uppercase mb-2 d-block" style="color:#c0392b;">
+                        Select for Ring / Pendant
+                    </label>
+
+                    <!-- Ornament radio cards — loop all ornaments (first is auto-selected) -->
+                    <div class="so_ornament_cards d-flex flex-wrap gap-2 mb-3">
+                        <t t-foreach="product.so_ornament_ids" t-as="orn">
+                            <div
+                                t-attf-class="so_ornament_card{{ ' so_ornament_card_active' if orn_index == 0 else '' }}"
+                                t-att-data-ornament-id="orn.id"
+                                t-att-data-enable-metal="orn.enable_metal_option and '1' or '0'"
+                                t-att-data-enable-design="orn.enable_design_option and '1' or '0'"
+                                t-att-data-enable-ring-sizer="orn.enable_ring_sizer and '1' or '0'"
+                            >
+                                <input
+                                    type="radio"
+                                    name="so_ornament_id"
+                                    t-att-value="orn.id"
+                                    class="d-none so_ornament_radio"
+                                    t-att-checked="'1' if orn_index == 0 else None"
+                                />
+                                <div class="so_ornament_card_inner">
+                                    <div class="so_ornament_img_wrap">
+                                        <t t-if="orn.image">
+                                            <img
+                                                t-att-src="'/web/image/sevenopal.ornament/%s/image' % orn.id"
+                                                t-att-alt="orn.name"
+                                                style="max-width:60px;max-height:60px;object-fit:contain;"
+                                            />
+                                        </t>
+                                        <t t-elif="orn.name == 'Loose Gemstone'">
+                                            <i class="fa fa-gem fa-2x"/>
+                                        </t>
+                                        <t t-elif="orn.name == 'Ring'">
+                                            <i class="fa fa-circle fa-2x"/>
+                                        </t>
+                                        <t t-else="">
+                                            <i class="fa fa-link fa-2x"/>
+                                        </t>
+                                    </div>
+                                    <span t-out="orn.name"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Selected ornament label -->
+                    <p class="so_ornament_label text-muted mb-2">
+                        <t t-out="product.so_ornament_ids[0].name if product.so_ornament_ids else ''"/>
+                    </p>
+
+                    <!-- Metal Option (shown when ornament has metal options) -->
+                    <div class="so_metal_section d-none mb-3">
+                        <label class="so_section_title fw-bold text-uppercase mb-2 d-block">Metal</label>
+                        <select name="so_metal_option_id" class="form-select so_metal_select" data-role="so_metal">
+                            <option value="">-- Select Metal --</option>
+                            <t t-foreach="product.so_ornament_ids" t-as="orn">
+                                <t t-if="orn.enable_metal_option">
+                                    <t t-foreach="orn.metal_option_ids" t-as="metal">
+                                        <option
+                                            t-att-value="metal.id"
+                                            t-att-data-ornament-id="orn.id"
+                                            class="so_metal_opt d-none"
+                                        >
+                                            <t t-out="metal.name"/>
+                                            <t t-if="metal.description"> – <t t-out="metal.description"/></t>
+                                        </option>
+                                    </t>
+                                </t>
+                            </t>
+                        </select>
+                    </div>
+
+                    <!-- Design grid (loaded via AJAX after metal selection) -->
+                    <div class="so_design_section d-none mb-3">
+                        <label class="so_section_title fw-bold text-uppercase mb-2 d-block">Design</label>
+                        <div class="so_design_grid row g-2" id="so_design_grid">
+                            <!-- Populated by JS -->
+                        </div>
+                        <input type="hidden" name="so_metal_design_id" class="so_design_hidden" value=""/>
+                        <input type="hidden" name="so_metal_design_price" class="so_design_price_hidden" value="0"/>
+                    </div>
+
+                    <!-- Ring Size (shown when ornament enables ring sizer) -->
+                    <div class="so_ring_size_section d-none mb-3">
+                        <label class="so_section_title fw-bold text-uppercase mb-2 d-block">Ring Size</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select name="so_ring_size_system" class="form-select so_ring_size_system">
+                                    <option value="indian">Indian Ring Size</option>
+                                    <option value="us">US Ring Size</option>
+                                    <option value="international">International</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <select name="so_ring_size" class="form-select so_ring_size">
+                                    <option value="">-- Select Size --</option>
+                                    <t t-foreach="range(1, 39)" t-as="sz">
+                                        <option t-att-value="sz" t-out="sz"/>
+                                    </t>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+        </xpath>
+
+        <!-- Total price row shown when extras are selected (above Add to Cart) -->
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="before">
+            <div class="so_total_price_row d-none mb-3 p-3"
+                 style="background:#1c1f26; border-radius:8px; border:1px solid #c0392b;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Base Price</span>
+                    <span class="so_base_price_display fw-bold"></span>
+                </div>
+                <div class="so_extras_breakdown"></div>
+                <hr style="border-color:#333; margin:8px 0;"/>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Total</span>
+                    <span class="so_total_price_display fw-bold" style="color:#c0392b; font-size:1.1rem;"></span>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!--
+        Full Product Details table + Video below product description.
+    -->
+    <template
+        id="sevenopal_product_weight_info"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Product Details &amp; Specs"
+    >
+        <!-- "Total" label + per-carat badge BEFORE the price section -->
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_price')]" position="before">
+            <t t-if="product.so_weight_carat or product.so_price_per_carat">
+                <div class="so_price_section_header d-flex align-items-center gap-2 mb-1">
+                    <span class="so_price_total_label">Total</span>
+                    <t t-if="product.so_price_per_carat">
+                        <span class="so_ppc_inline_badge">
+                            &#8377;<t t-out="'{:,.0f}'.format(product.so_price_per_carat)"/>&#160;/ carat
+                        </span>
+                    </t>
+                </div>
+            </t>
+        </xpath>
+
+        <!-- Weight + origin quick pills AFTER the price section -->
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_price')]" position="after">
+            <t t-if="product.so_weight_carat or product.so_weight_ratti">
+                <div class="so_weight_badges d-flex flex-wrap gap-2 mb-2 mt-1">
+                    <t t-if="product.so_weight_carat">
+                        <span class="so_weight_badge_pill">
+                            <i class="fa fa-balance-scale me-1"/>
+                            <t t-out="'%.2f' % product.so_weight_carat"/> ct
+                            <t t-if="product.so_weight_ratti">
+                                / <t t-out="'%.2f' % product.so_weight_ratti"/> Ratti
+                            </t>
+                        </span>
+                    </t>
+                    <t t-if="product.so_origin">
+                        <span class="so_weight_badge_pill">
+                            <i class="fa fa-map-marker me-1"/>
+                            <t t-out="product.so_origin"/>
+                        </span>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Spec highlight cards: Carat / Shape / Origin -->
+            <t t-if="product.so_weight_carat or product.so_shape or product.so_origin">
+                <div class="so_spec_cards row g-2 mt-1 mb-3">
+                    <t t-if="product.so_weight_carat">
+                        <div class="col-4">
+                            <div class="so_spec_card">
+                                <div class="so_spec_card_icon"><i class="fa fa-balance-scale"/></div>
+                                <div class="so_spec_card_value">
+                                    <t t-out="'%.2f' % product.so_weight_carat"/>
+                                    <span class="so_spec_card_unit">ct</span>
+                                </div>
+                                <div class="so_spec_card_label">Weight</div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-if="product.so_shape">
+                        <div class="col-4">
+                            <div class="so_spec_card">
+                                <div class="so_spec_card_icon"><i class="fa fa-adjust"/></div>
+                                <div class="so_spec_card_value">
+                                    <t t-out="(product.so_shape or '').split()[0]"/>
+                                </div>
+                                <div class="so_spec_card_label">Shape</div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-if="product.so_origin">
+                        <div class="col-4">
+                            <div class="so_spec_card">
+                                <div class="so_spec_card_icon"><i class="fa fa-globe"/></div>
+                                <div class="so_spec_card_value">
+                                    <t t-out="(product.so_origin or '').split(',')[0]"/>
+                                </div>
+                                <div class="so_spec_card_label">Origin</div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product Details table + Video — injected after description
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_details_table"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Product Details Table"
+    >
+        <xpath expr="//div[@t-field='product.website_description']" position="after">
+
+            <!-- Product Details Table -->
+            <t t-if="product.so_weight_carat or product.so_stone_dimension or product.so_shape or product.so_origin or product.so_opal_quality">
+                <div class="so_product_details_table mt-4 mb-4">
+                    <h5 class="so_details_heading fw-bold mb-3">Product Details</h5>
+                    <table class="table table-sm table-borderless so_specs_table">
+                        <tbody>
+                            <t t-if="product.default_code">
+                                <tr>
+                                    <th class="so_spec_label">ID</th>
+                                    <td><t t-out="product.default_code"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_weight_carat">
+                                <tr>
+                                    <th class="so_spec_label">Stone Weight</th>
+                                    <td><t t-out="'%.2f' % product.so_weight_carat"/> Carat</td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_weight_ratti">
+                                <tr>
+                                    <th class="so_spec_label">Weight Ratti</th>
+                                    <td><t t-out="'%.2f' % product.so_weight_ratti"/> Ratti</td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_stone_dimension">
+                                <tr>
+                                    <th class="so_spec_label">Stone Dimension</th>
+                                    <td><t t-out="product.so_stone_dimension"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_shape">
+                                <tr>
+                                    <th class="so_spec_label">Shape</th>
+                                    <td><t t-out="product.so_shape"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_origin">
+                                <tr>
+                                    <th class="so_spec_label">Origin Of Stone</th>
+                                    <td><t t-out="product.so_origin"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_price_per_carat">
+                                <tr>
+                                    <th class="so_spec_label">Price Per Carat</th>
+                                    <td>₹<t t-out="'%.0f' % product.so_price_per_carat"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_total_price">
+                                <tr>
+                                    <th class="so_spec_label">Total Price</th>
+                                    <td class="fw-bold" style="color:#c0392b;">
+                                        ₹<t t-out="'{:,.0f}'.format(product.so_total_price)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_opal_quality">
+                                <tr>
+                                    <th class="so_spec_label">Opal Quality</th>
+                                    <td><t t-out="product.so_opal_quality"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_stone_certification">
+                                <tr>
+                                    <th class="so_spec_label">Stone Certification</th>
+                                    <td><t t-out="product.so_stone_certification"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="product.so_opal_grading">
+                                <tr>
+                                    <th class="so_spec_label">Opal Grading</th>
+                                    <td><t t-out="product.so_opal_grading"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+
+            <!-- Product Video -->
+            <t t-if="product.so_video_url">
+                <div class="so_product_video mt-4 mb-4">
+                    <h5 class="so_details_heading fw-bold mb-3">Product Video</h5>
+                    <div class="ratio ratio-16x9" style="max-width:560px;">
+                        <iframe
+                            t-att-src="'https://www.youtube.com/embed/%s' % product.so_video_url if 'embed' not in product.so_video_url else product.so_video_url"
+                            allowfullscreen="1"
+                            loading="lazy"
+                            frameborder="0"
+                        />
+                    </div>
+                </div>
+            </t>
+
+            <!-- Product FAQs -->
+            <t t-if="product.so_product_faq">
+                <div class="so_product_faq_section mt-4 mb-4">
+                    <h5 class="so_details_heading fw-bold mb-3">Product FAQs</h5>
+                    <div class="so_faq_content" t-field="product.so_product_faq"/>
+                </div>
+            </t>
+
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product description area — wrap in SevenOpal tab style
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_desc_tabs"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Description Tabs"
+    >
+        <!-- Style the description/accordion section heading -->
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_accordion')]" position="attributes">
+            <attribute name="class" add="so_product_desc_section"/>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Breadcrumb — style the product page breadcrumb
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_breadcrumb"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Product Breadcrumb"
+    >
+        <xpath expr="//ol[hasclass('o_wsale_breadcrumb')]" position="attributes">
+            <attribute name="class" add="so_breadcrumb_nav"/>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         "Social share" description text near price
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_short_desc"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Short Description Under Price"
+    >
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_price')]" position="after">
+            <t t-if="product.description_sale">
+                <p class="so_short_desc mt-2 mb-1" t-field="product.description_sale"/>
+            </t>
+            <t t-elif="product.so_weight_carat">
+                <p class="so_short_desc mt-2 mb-1">
+                    100% natural and authentic Australian Opal stone in premium quality cut and polish.
+                </p>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Product Type / Identity Chips — injected after title
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_type_badges"
+        inherit_id="website_sale.product_title"
+        name="SevenOpal – Product Type Badges"
+    >
+        <xpath expr="//h1[@t-field='product.name']" position="after">
+            <t t-if="product.so_is_fire_opal or product.so_is_calibrated_opal or product.so_is_jewellery or product.so_is_best_seller or product.so_is_new_arrival or product.so_is_special_offer">
+                <div class="so_type_badge_row d-flex flex-wrap gap-2 mb-3">
+                    <t t-if="product.so_is_fire_opal">
+                        <span class="so_type_badge so_badge_fire">
+                            <i class="fa fa-fire me-1"/>Fire Opal
+                        </span>
+                    </t>
+                    <t t-if="product.so_is_calibrated_opal">
+                        <span class="so_type_badge so_badge_calibrated">
+                            <i class="fa fa-th me-1"/>Calibrated
+                        </span>
+                    </t>
+                    <t t-if="product.so_is_jewellery">
+                        <span class="so_type_badge so_badge_jewellery">
+                            <i class="fa fa-diamond me-1"/>Jewellery
+                        </span>
+                    </t>
+                    <t t-if="product.so_is_best_seller">
+                        <span class="so_type_badge so_badge_bestseller">
+                            <i class="fa fa-star me-1"/>Best Seller
+                        </span>
+                    </t>
+                    <t t-if="product.so_is_new_arrival">
+                        <span class="so_type_badge so_badge_new">
+                            <i class="fa fa-tag me-1"/>New Arrival
+                        </span>
+                    </t>
+                    <t t-if="product.so_is_special_offer">
+                        <span class="so_type_badge so_badge_offer">
+                            <i class="fa fa-percent me-1"/>Special Offer
+                        </span>
+                    </t>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Trust assurance strip — after CTA buttons
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_trust_strip"
+        inherit_id="website_sale.product"
+        name="SevenOpal – Trust Assurance Strip"
+    >
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="after">
+            <div class="so_trust_strip mt-3 mb-1">
+                <div class="row g-2 text-center">
+                    <div class="col-6 col-md-3">
+                        <div class="so_trust_item">
+                            <i class="fa fa-certificate so_trust_icon"/>
+                            <div class="so_trust_label">Free Certified</div>
+                            <div class="so_trust_sub">Lab Certificate</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="so_trust_item">
+                            <i class="fa fa-leaf so_trust_icon"/>
+                            <div class="so_trust_label">100% Natural</div>
+                            <div class="so_trust_sub">Authentic Stone</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="so_trust_item">
+                            <i class="fa fa-lock so_trust_icon"/>
+                            <div class="so_trust_label">Secure Payment</div>
+                            <div class="so_trust_sub">Encrypted Checkout</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="so_trust_item">
+                            <i class="fa fa-plane so_trust_icon"/>
+                            <div class="so_trust_label">Worldwide Ship</div>
+                            <div class="so_trust_sub">Free Shipping</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         WhatsApp Enquiry button — after trust strip
+    ══════════════════════════════════════════════════════════ -->
+    <template
+        id="sevenopal_product_whatsapp_enquiry"
+        inherit_id="website_sale.product"
+        name="SevenOpal – WhatsApp Enquiry"
+    >
+        <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="after">
+            <div class="so_wa_enquiry_wrap mt-2 mb-2">
+                <a
+                    t-att-href="'https://wa.me/917428222250?text=Hi%2C+I+am+interested+in+buying+' + (product.name or '').replace(' ', '+') + '+%28SKU%3A+' + (product.default_code or '') + '%29.+Please+share+details.'"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="so_wa_enquiry_btn d-inline-flex align-items-center gap-2"
+                >
+                    <i class="fa fa-whatsapp fa-lg"/>
+                    <span>Enquire on WhatsApp</span>
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

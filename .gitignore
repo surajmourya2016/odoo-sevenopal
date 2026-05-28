@@ -1,0 +1,35 @@
+# ── PostgreSQL (entire install — binaries + data) ─────────────
+PostgreSQL/
+
+# ── Odoo core server — ignore everything EXCEPT addons_custom ─
+server/*
+!server/addons_custom/
+
+# ── Python runtime ────────────────────────────────────────────
+python/
+
+# ── Windows installer / tools ─────────────────────────────────
+nssm/
+vcredist/
+thirdparty/
+Uninstall.exe
+*.exe
+
+# ── Python compiled ───────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+*.txt
+
+# ── Secrets / env ─────────────────────────────────────────────
+.env
+*.env
+local_settings.py
+
+# ── OS junk ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

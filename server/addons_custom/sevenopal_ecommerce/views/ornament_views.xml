@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Metal Design inline view -->
+    <record id="sevenopal_metal_design_list_view" model="ir.ui.view">
+        <field name="name">sevenopal.metal.design.list</field>
+        <field name="model">sevenopal.metal.design</field>
+        <field name="arch" type="xml">
+            <list string="Metal Designs" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="image" widget="image" options="{'size': [40, 40]}"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="price"/>
+                <field name="metal_option_id"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Metal Option inline view -->
+    <record id="sevenopal_metal_option_list_view" model="ir.ui.view">
+        <field name="name">sevenopal.metal.option.list</field>
+        <field name="model">sevenopal.metal.option</field>
+        <field name="arch" type="xml">
+            <list string="Metal Options" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Ring Sizer list view -->
+    <record id="sevenopal_ring_sizer_list_view" model="ir.ui.view">
+        <field name="name">sevenopal.ring.sizer.list</field>
+        <field name="model">sevenopal.ring.sizer</field>
+        <field name="arch" type="xml">
+            <list string="Ring Sizers" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="price"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sevenopal_ring_sizer_action" model="ir.actions.act_window">
+        <field name="name">Ring Sizer Options</field>
+        <field name="res_model">sevenopal.ring.sizer</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Ornament list view -->
+    <record id="sevenopal_ornament_list_view" model="ir.ui.view">
+        <field name="name">sevenopal.ornament.list</field>
+        <field name="model">sevenopal.ornament</field>
+        <field name="arch" type="xml">
+            <list string="Ornaments">
+                <field name="sequence" widget="handle"/>
+                <field name="image" widget="image" options="{'size': [40, 40]}"/>
+                <field name="name"/>
+                <field name="tax_percentage"/>
+                <field name="enable_metal_option"/>
+                <field name="enable_design_option"/>
+                <field name="enable_ring_sizer"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Ornament form view -->
+    <record id="sevenopal_ornament_form_view" model="ir.ui.view">
+        <field name="name">sevenopal.ornament.form</field>
+        <field name="model">sevenopal.ornament</field>
+        <field name="arch" type="xml">
+            <form string="Ornament">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Ornament Name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="image" widget="image"/>
+                            <field name="sequence"/>
+                            <field name="tax_percentage"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="enable_metal_option"/>
+                            <field name="enable_design_option"/>
+                            <field name="enable_ring_sizer"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Metal Options" invisible="not enable_metal_option">
+                            <field name="metal_option_ids" view_mode="list">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Metal Designs" invisible="not enable_design_option">
+                            <field name="metal_design_ids" view_mode="list">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="image" widget="image" options="{'size': [40, 40]}"/>
+                                    <field name="name"/>
+                                    <field name="description"/>
+                                    <field name="price"/>
+                                    <field name="metal_option_id" domain="[('ornament_id', '=', parent.id)]"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sevenopal_ornament_action" model="ir.actions.act_window">
+        <field name="name">Ornament Options</field>
+        <field name="res_model">sevenopal.ornament</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

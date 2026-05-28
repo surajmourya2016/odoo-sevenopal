@@ -1,0 +1,5 @@
+# Import/upgrade logs — local only
+*.log
+*.txt
+__pycache__/
+*.pyc

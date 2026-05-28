@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sevenopal_certificate_user,sevenopal.certificate user,model_sevenopal_certificate,base.group_user,1,0,0,0
+access_sevenopal_certificate_manager,sevenopal.certificate manager,model_sevenopal_certificate,base.group_system,1,1,1,1
+access_sevenopal_ornament_user,sevenopal.ornament user,model_sevenopal_ornament,base.group_user,1,0,0,0
+access_sevenopal_ornament_manager,sevenopal.ornament manager,model_sevenopal_ornament,base.group_system,1,1,1,1
+access_sevenopal_metal_option_user,sevenopal.metal.option user,model_sevenopal_metal_option,base.group_user,1,0,0,0
+access_sevenopal_metal_option_manager,sevenopal.metal.option manager,model_sevenopal_metal_option,base.group_system,1,1,1,1
+access_sevenopal_metal_design_user,sevenopal.metal.design user,model_sevenopal_metal_design,base.group_user,1,0,0,0
+access_sevenopal_metal_design_manager,sevenopal.metal.design manager,model_sevenopal_metal_design,base.group_system,1,1,1,1
+access_sevenopal_ring_sizer_user,sevenopal.ring.sizer user,model_sevenopal_ring_sizer,base.group_user,1,0,0,0
+access_sevenopal_ring_sizer_manager,sevenopal.ring.sizer manager,model_sevenopal_ring_sizer,base.group_system,1,1,1,1

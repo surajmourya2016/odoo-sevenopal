@@ -1,0 +1,23 @@
+# Python compiled
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyd
+
+# Odoo
+*.pot
+
+# Logs & temp output
+*.log
+*.txt
+
+# Environment / secrets
+.env
+*.env
+local_settings.py
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         Extend the website_sale product form with SevenOpal tab
+    ══════════════════════════════════════════════════════════ -->
+    <record id="product_template_sevenopal_form_view" model="ir.ui.view">
+        <field name="name">product.template.sevenopal.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="website_sale.product_template_form_view"/>
+        <field name="arch" type="xml">
+
+            <!-- ── Quick opal-type flags visible on the sales price line ── -->
+            <xpath expr="//field[@name='list_price']" position="after">
+                <field name="so_is_fire_opal"
+                       widget="boolean_toggle"
+                       nolabel="1"
+                       options="{'terminology': ['Fire Opal', 'Not Fire Opal']}"/>
+                <field name="so_is_calibrated_opal"
+                       widget="boolean_toggle"
+                       nolabel="1"
+                       options="{'terminology': ['Calibrated', 'Not Calibrated']}"/>
+                <field name="so_is_jewellery"
+                       widget="boolean_toggle"
+                       nolabel="1"
+                       options="{'terminology': ['Jewellery', 'Not Jewellery']}"/>
+            </xpath>
+
+            <!-- ── SevenOpal Options tab ── -->
+            <xpath expr="//notebook" position="inside">
+                <page string="SevenOpal" name="sevenopal_options" class="so_admin_tab">
+
+                    <!-- ━━━━━ QUICK SUMMARY ROW ━━━━━ -->
+                    <div class="so_admin_summary d-flex flex-wrap gap-3 mb-4 p-3"
+                         style="background:#f8f0ef; border-radius:8px; border:1px solid #e0c8c6;">
+                        <div class="so_admin_stat">
+                            <div class="so_admin_stat_label">Weight</div>
+                            <div class="so_admin_stat_val">
+                                <field name="so_weight_carat" nolabel="1" class="so_inline_field"/> ct
+                                / <field name="so_weight_ratti" nolabel="1" class="so_inline_field"/> Ratti
+                            </div>
+                        </div>
+                        <div class="so_admin_stat_divider"/>
+                        <div class="so_admin_stat">
+                            <div class="so_admin_stat_label">Price / Carat</div>
+                            <div class="so_admin_stat_val">
+                                ₹<field name="so_price_per_carat" nolabel="1" class="so_inline_field"/>
+                            </div>
+                        </div>
+                        <div class="so_admin_stat_divider"/>
+                        <div class="so_admin_stat">
+                            <div class="so_admin_stat_label">Total Price</div>
+                            <div class="so_admin_stat_val" style="color:#c0392b; font-weight:700;">
+                                ₹<field name="so_total_price" nolabel="1" readonly="1" class="so_inline_field"/>
+                            </div>
+                        </div>
+                        <div class="so_admin_stat_divider"/>
+                        <div class="so_admin_stat">
+                            <div class="so_admin_stat_label">Type</div>
+                            <div class="d-flex gap-1 flex-wrap mt-1">
+                                <span invisible="not so_is_fire_opal" class="badge" style="background:#c0392b;">Fire Opal</span>
+                                <span invisible="not so_is_calibrated_opal" class="badge" style="background:#2980b9;">Calibrated</span>
+                                <span invisible="not so_is_jewellery" class="badge" style="background:#8e44ad;">Jewellery</span>
+                            </div>
+                            <field name="so_is_fire_opal" invisible="1"/>
+                            <field name="so_is_calibrated_opal" invisible="1"/>
+                            <field name="so_is_jewellery" invisible="1"/>
+                        </div>
+                    </div>
+
+                    <!-- ━━━━━ STONE SPECIFICATIONS ━━━━━ -->
+                    <separator string="Stone Specifications"/>
+                    <group>
+                        <group>
+                            <field name="so_weight_carat"    placeholder="e.g. 6.50"/>
+                            <field name="so_weight_ratti"    placeholder="e.g. 7.00"/>
+                            <field name="so_stone_dimension" placeholder="e.g. 19.05 X 13.13 X 4.05 MM"/>
+                            <field name="so_shape"           placeholder="e.g. Oval Shaped Cabochon"/>
+                        </group>
+                        <group>
+                            <field name="so_origin"          placeholder="South Australia"/>
+                            <field name="so_opal_quality"    placeholder="e.g. Premium Hong Kong Cut &amp; Polish"/>
+                            <field name="so_stone_certification"
+                                   placeholder="e.g. Free LAB Certified – Opal Association of Australia"/>
+                            <field name="so_opal_grading"
+                                   placeholder="e.g. Grading as per GIA Analysis Black Opal – A to AAA+…"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ PRICING ━━━━━ -->
+                    <separator string="Pricing"/>
+                    <group>
+                        <group>
+                            <field name="so_price_per_carat" placeholder="e.g. 6000"/>
+                            <field name="so_cost_per_carat"  placeholder="e.g. 4500"/>
+                        </group>
+                        <group>
+                            <field name="so_total_price" readonly="1"/>
+                            <field name="so_video_url"   placeholder="https://www.youtube.com/embed/VIDEO_ID"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ SHIPPING &amp; DIMENSIONS ━━━━━ -->
+                    <separator string="Shipping &amp; Dimensions"/>
+                    <group>
+                        <group>
+                            <field name="so_weight_grams" placeholder="g"/>
+                            <field name="so_dim_length"   placeholder="mm"/>
+                            <field name="so_dim_width"    placeholder="mm"/>
+                            <field name="so_dim_height"   placeholder="mm"/>
+                        </group>
+                        <group>
+                            <field name="so_allow_out_of_stock"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ OPAL TYPE ━━━━━ -->
+                    <separator string="Opal Type"/>
+                    <group>
+                        <group>
+                            <field name="so_is_fire_opal"/>
+                            <field name="so_is_jewellery"/>
+                            <field name="so_is_calibrated_opal"/>
+                        </group>
+                        <group>
+                            <field name="so_label_hot"/>
+                            <field name="so_label_new"/>
+                            <field name="so_label_sale"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ COLLECTIONS ━━━━━ -->
+                    <separator string="Collections"/>
+                    <group>
+                        <group>
+                            <field name="so_is_new_arrival"/>
+                            <field name="so_is_best_seller"/>
+                            <field name="so_is_special_offer"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ CERTIFICATION ADD-ON ━━━━━ -->
+                    <separator string="Certification Add-on (Shop)"/>
+                    <group>
+                        <group>
+                            <field name="so_enable_certification"/>
+                        </group>
+                        <group>
+                            <field name="so_certificate_ids"
+                                   widget="many2many_tags"
+                                   invisible="not so_enable_certification"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ RING / PENDANT ADD-ON ━━━━━ -->
+                    <separator string="Ring / Pendant Add-on (Shop)"/>
+                    <group>
+                        <group>
+                            <field name="so_enable_ornament"/>
+                        </group>
+                        <group>
+                            <field name="so_ornament_ids"
+                                   widget="many2many_tags"
+                                   invisible="not so_enable_ornament"/>
+                        </group>
+                    </group>
+
+                    <!-- ━━━━━ PRODUCT FAQs ━━━━━ -->
+                    <separator string="Product FAQs"/>
+                    <group>
+                        <field name="so_product_faq" nolabel="1"/>
+                    </group>
+
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
