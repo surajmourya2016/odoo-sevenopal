@@ -8,33 +8,83 @@
  *  - Metal options, design grid, ring size show/hide correctly
  */
 
-document.addEventListener("DOMContentLoaded", () => {
+// Odoo 19 loads website assets with lazy_load="True" (defer), so DOMContentLoaded
+// has already fired when this module executes. We must check readyState and run
+// immediately if DOM is already parsed, otherwise fall back to the listener.
+function _soInit() {
     if (!document.querySelector(".js_sale.o_wsale_product_page")) return;
 
+    unlockProductPageScroll();
     captureBasePrice();
     initCertification();
     initOrnamentSelector();
+    initBuyNowButton();
     hookAddToCart();
 
-    // Auto-init first ornament card state (it's pre-selected by template)
     const firstCard = document.querySelector(".so_ornament_card.so_ornament_card_active");
     if (firstCard) applyOrnamentCard(firstCard);
-});
+}
+
+function initBuyNowButton() {
+    const optionBlock = document.getElementById("product_option_block");
+    const addToCart = document.getElementById("add_to_cart");
+    if (!optionBlock || !addToCart || optionBlock.querySelector(".so_buy_now_btn")) return;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "so_buy_now_btn";
+    btn.textContent = "Buy Now";
+    btn.addEventListener("click", () => {
+        addToCart.click();
+        window.setTimeout(() => {
+            window.location.href = "/shop/cart";
+        }, 700);
+    });
+
+    optionBlock.insertBefore(btn, optionBlock.firstChild);
+}
+
+function unlockProductPageScroll() {
+    const root = document.querySelector(".js_sale.o_wsale_product_page");
+    if (!root) return;
+
+    const unlock = () => {
+        document.body.classList.remove("modal-open");
+        document.documentElement.style.overflowY = "auto";
+        document.body.style.overflowY = "auto";
+        document.body.style.overflowX = "hidden";
+        document.body.style.height = "auto";
+        document.body.style.paddingRight = "0px";
+        const wrapwrap = document.getElementById("wrapwrap");
+        if (wrapwrap) {
+            wrapwrap.style.overflowY = "auto";
+            wrapwrap.style.height = "auto";
+        }
+    };
+
+    unlock();
+    window.setTimeout(unlock, 250);
+    window.setTimeout(unlock, 1000);
+    window.setTimeout(unlock, 2000);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", _soInit);
+} else {
+    _soInit();
+}
 
 // ─── Base price ───────────────────────────────────────────────────────────────
 
-let _basePriceRaw = 0;   // numeric value
-let _currencySymbol = "";
+let _basePriceRaw    = 0;
+let _basePriceText   = "";   // original text of .oe_currency_value (to restore)
 
 function captureBasePrice() {
-    // Odoo renders the price in span.oe_price — read its text and parse
-    const priceEl = document.querySelector("span.oe_price");
-    if (!priceEl) return;
-    const text = priceEl.textContent.trim();
-    // Extract currency symbol (non-digit/non-space/non-comma/non-period prefix or suffix)
-    _currencySymbol = text.replace(/[\d,. ]/g, "").trim() || "₹";
-    // Parse numeric value
-    _basePriceRaw = parseFloat(text.replace(/[^\d.]/g, "")) || 0;
+    // Odoo renders the numeric value inside span.oe_price > .oe_currency_value
+    const valEl = document.querySelector("span.oe_price .oe_currency_value");
+    if (!valEl) return;
+    _basePriceText = valEl.textContent.trim();
+    _basePriceRaw  = parseFloat(_basePriceText.replace(/[^\d.]/g, "")) || 0;
 }
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -55,11 +105,14 @@ const state = {
 function initCertification() {
     const select = document.querySelector("select.so_certificate_select");
     if (!select) return;
+    if (select.dataset.soBound === "1") return;
+    select.dataset.soBound = "1";
     select.addEventListener("change", () => {
         const opt = select.options[select.selectedIndex];
         state.certificateId    = opt.value || null;
         state.certificateCharge = parseFloat(opt.dataset.charge || 0);
         refreshPriceDisplay();
+        refreshSelectionSummary();
     });
 }
 
@@ -68,30 +121,32 @@ function initCertification() {
 function initOrnamentSelector() {
     const cards = document.querySelectorAll(".so_ornament_card");
     if (!cards.length) return;
+    if (document.body.dataset.soOrnamentBound === "1") return;
+    document.body.dataset.soOrnamentBound = "1";
 
-    cards.forEach((card) => {
-        card.addEventListener("click", () => {
-            cards.forEach((c) => c.classList.remove("so_ornament_card_active"));
-            card.classList.add("so_ornament_card_active");
-            const radio = card.querySelector("input.so_ornament_radio");
-            if (radio) radio.checked = true;
-            applyOrnamentCard(card);
-        });
+    document.addEventListener("click", (ev) => {
+        const card = ev.target.closest(".so_ornament_card");
+        if (!card) return;
+        document.querySelectorAll(".so_ornament_card").forEach((c) =>
+            c.classList.remove("so_ornament_card_active")
+        );
+        card.classList.add("so_ornament_card_active");
+        const radio = card.querySelector("input.so_ornament_radio");
+        if (radio) radio.checked = true;
+        applyOrnamentCard(card);
     });
 
     // Metal dropdown → load designs
-    const metalSelect = document.querySelector("select.so_metal_select");
-    if (metalSelect) {
-        metalSelect.addEventListener("change", () => {
-            const metalId = parseInt(metalSelect.value || 0);
-            state.metalOptionId = metalId || null;
-            if (metalId) {
-                loadDesigns(metalId);
-            } else {
-                clearDesigns();
-            }
-        });
-    }
+    document.addEventListener("change", (ev) => {
+        if (!ev.target.matches("select.so_metal_select")) return;
+        const metalId = parseInt(ev.target.value || 0);
+        state.metalOptionId = metalId || null;
+        if (metalId) {
+            loadDesigns(metalId);
+        } else {
+            clearDesigns();
+        }
+    });
 
     // Ring size selectors
     const ringSizeEl       = document.querySelector(".so_ring_size");
@@ -105,7 +160,7 @@ function applyOrnamentCard(card) {
     state.ornamentId   = ornamentId || null;
 
     // Update label
-    const labelSpan = card.querySelector("span");
+    const labelSpan = card.querySelector(".so_ornament_card_inner > span:last-child");
     const labelEl   = document.querySelector(".so_ornament_label");
     if (labelEl && labelSpan) labelEl.textContent = labelSpan.textContent.trim();
 
@@ -126,6 +181,7 @@ function applyOrnamentCard(card) {
         state.metalDesignPrice = 0;
     }
     refreshPriceDisplay();
+    refreshSelectionSummary();
 }
 
 function toggleSection(selector, show) {
@@ -147,16 +203,7 @@ function filterMetalOptions(ornamentId) {
         else      opt.setAttribute("disabled", "disabled");
     });
 
-    // Auto-select first visible metal option
-    const firstVisible = Array.from(metalSelect.querySelectorAll("option.so_metal_opt"))
-        .find((o) => !o.classList.contains("d-none"));
-    if (firstVisible) {
-        metalSelect.value   = firstVisible.value;
-        state.metalOptionId = parseInt(firstVisible.value);
-        loadDesigns(state.metalOptionId);
-    } else {
-        clearDesigns();
-    }
+    clearDesigns();
 }
 
 // ─── Design grid ──────────────────────────────────────────────────────────────
@@ -169,7 +216,8 @@ async function loadDesigns(metalOptionId) {
     grid.innerHTML = '<div class="col-12 py-3 text-center"><i class="fa fa-spinner fa-spin text-muted"></i></div>';
 
     try {
-        const resp    = await fetch(`/sevenopal/designs/${metalOptionId}`);
+        const url = `/sevenopal/designs/${metalOptionId}?ornament_id=${state.ornamentId || ""}`;
+        const resp    = await fetch(url);
         const designs = await resp.json();
 
         grid.innerHTML = "";
@@ -195,7 +243,8 @@ async function loadDesigns(metalOptionId) {
                 </label>`;
             grid.appendChild(col);
 
-            col.querySelector("input[type=radio]").addEventListener("change", () => {
+            col.querySelector(".so_design_card").addEventListener("click", () => {
+                col.querySelector("input[type=radio]").checked = true;
                 grid.querySelectorAll(".so_design_card_inner").forEach((el) => el.classList.remove("so_design_card_active"));
                 col.querySelector(".so_design_card_inner").classList.add("so_design_card_active");
                 setSelectedDesign(d.id, d.price);
@@ -227,21 +276,38 @@ function clearDesigns() {
 // ─── Live price display ───────────────────────────────────────────────────────
 
 function refreshPriceDisplay() {
-    const totalRow     = document.querySelector(".so_total_price_row");
-    const basePriceEl  = document.querySelector(".so_base_price_display");
-    const extrasEl     = document.querySelector(".so_extras_breakdown");
-    const totalEl      = document.querySelector(".so_total_price_display");
+    const totalRow    = document.querySelector(".so_total_price_row");
+    const basePriceEl = document.querySelector(".so_base_price_display");
+    const extrasEl    = document.querySelector(".so_extras_breakdown");
+    const totalEl     = document.querySelector(".so_total_price_display");
+    // Main Odoo price element — we update it directly for instant feedback
+    const priceValEl  = document.querySelector("span.oe_price .oe_currency_value");
 
     const extras = [];
-    if (state.certificateCharge > 0) {
+    if (state.certificateCharge > 0)
         extras.push({ label: "Certificate", amount: state.certificateCharge });
-    }
-    if (state.metalDesignPrice > 0) {
+    if (state.metalDesignPrice > 0)
         extras.push({ label: "Design", amount: state.metalDesignPrice });
-    }
 
     const totalExtra = extras.reduce((s, e) => s + e.amount, 0);
+    const grandTotal = _basePriceRaw + totalExtra;
 
+    // ── Update main Odoo price display ──────────────────────────
+    if (priceValEl) {
+        if (totalExtra > 0) {
+            priceValEl.textContent = grandTotal.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+            priceValEl.style.cssText = "color:#c0392b !important; font-weight:700;";
+        } else {
+            // Restore original text and style
+            priceValEl.textContent = _basePriceText;
+            priceValEl.style.cssText = "";
+        }
+    }
+
+    // ── Breakdown box below CTA ──────────────────────────────────
     if (!totalRow) return;
 
     if (totalExtra === 0) {
@@ -251,22 +317,43 @@ function refreshPriceDisplay() {
 
     totalRow.classList.remove("d-none");
 
-    if (basePriceEl) {
-        basePriceEl.textContent = formatPrice(_basePriceRaw);
-    }
+    if (basePriceEl) basePriceEl.textContent = formatPrice(_basePriceRaw);
 
     if (extrasEl) {
         extrasEl.innerHTML = extras.map((e) =>
             `<div class="d-flex justify-content-between align-items-center mt-1">
                 <span class="text-muted small">+ ${escHtml(e.label)}</span>
-                <span class="small text-warning">+${formatPrice(e.amount)}</span>
+                <span class="small fw-bold" style="color:#e67e22;">+${formatPrice(e.amount)}</span>
             </div>`
         ).join("");
     }
 
-    if (totalEl) {
-        totalEl.textContent = formatPrice(_basePriceRaw + totalExtra);
+    if (totalEl) totalEl.textContent = formatPrice(grandTotal);
+}
+
+// Keep a summary badge near the Add to Cart button so user can see selection at a glance
+function refreshSelectionSummary() {
+    let wrap = document.querySelector(".so_selection_summary");
+    if (!wrap) {
+        const ctaSection = document.querySelector(".o_wsale_product_details_content_section_cta");
+        if (!ctaSection) return;
+        wrap = document.createElement("div");
+        wrap.className = "so_selection_summary mb-2";
+        ctaSection.insertAdjacentElement("beforebegin", wrap);
     }
+
+    const parts = [];
+    if (state.certificateId) {
+        const sel = document.querySelector("select.so_certificate_select");
+        const label = sel?.options[sel.selectedIndex]?.text || "Certificate selected";
+        parts.push(`<span class="so_sel_chip so_sel_chip_cert"><i class="fa fa-certificate me-1"></i>${escHtml(label)}</span>`);
+    }
+    const ornLabel = document.querySelector(".so_ornament_card_active span")?.textContent?.trim();
+    if (ornLabel && ornLabel !== "Loose Gemstone") {
+        parts.push(`<span class="so_sel_chip so_sel_chip_orn"><i class="fa fa-gem me-1"></i>${escHtml(ornLabel)}</span>`);
+    }
+
+    wrap.innerHTML = parts.length ? `<div class="d-flex flex-wrap gap-2 mb-2">${parts.join("")}</div>` : "";
 }
 
 function formatPrice(amount) {
@@ -275,27 +362,44 @@ function formatPrice(amount) {
 }
 
 // ─── Add to cart hook ─────────────────────────────────────────────────────────
+// Odoo 19 fires "add_to_cart_event" (not "cart:updated") after cart update.
+// We find the newly-added line by product_template_id in the backend.
 
 function hookAddToCart() {
-    document.addEventListener("cart:updated", async (ev) => {
-        const lineId = ev.detail && ev.detail.line_id;
-        if (!lineId) return;
+    document.addEventListener("add_to_cart_event", async () => {
         if (!hasSevenopalOptions()) return;
 
+        const tmplId = _getProductTemplateId();
+        if (!tmplId) return;
+
         try {
-            await jsonrpc("/sevenopal/update_line", {
-                line_id:          lineId,
-                certificate_id:   state.certificateId   ? parseInt(state.certificateId) : null,
-                ornament_id:      state.ornamentId,
-                metal_option_id:  state.metalOptionId,
-                metal_design_id:  state.metalDesignId,
-                ring_size:        state.ringSize,
-                ring_size_system: state.ringSizeSystem,
+            await jsonrpc("/sevenopal/update_line_by_product", {
+                product_template_id: tmplId,
+                certificate_id:      state.certificateId   ? parseInt(state.certificateId) : null,
+                certificate_charge:  state.certificateCharge,
+                ornament_id:         state.ornamentId,
+                metal_option_id:     state.metalOptionId,
+                metal_design_id:     state.metalDesignId,
+                metal_design_price:  state.metalDesignPrice,
+                ring_size:           state.ringSize,
+                ring_size_system:    state.ringSizeSystem,
             });
         } catch (e) {
             console.warn("[SevenOpal] Could not update cart line:", e);
         }
     });
+}
+
+function _getProductTemplateId() {
+    // Try data attribute on the main product wrapper
+    const el = document.querySelector(".js_main_product, [data-product-template-id]");
+    if (el?.dataset?.productTemplateId) return parseInt(el.dataset.productTemplateId);
+    // Fallback: hidden input
+    const inp = document.querySelector('input[name="product_template_id"]');
+    if (inp?.value) return parseInt(inp.value);
+    // Fallback: parse from URL  /shop/SLUG-ID
+    const m = window.location.pathname.match(/-(\d+)(?:\?|$)/);
+    return m ? parseInt(m[1]) : null;
 }
 
 function hasSevenopalOptions() {
@@ -333,7 +437,7 @@ window.soTabSwitch = function (btn, targetId) {
 };
 
 // On load: wrap existing sections in tab panels
-document.addEventListener("DOMContentLoaded", () => {
+function _soDetailTabsInit() {
     const specsSection  = document.querySelector(".so_product_details_table");
     const descSection   = document.querySelector("#product_details .accordion");
     const reviewSection = document.querySelector("#product_details .o_wsale_reviews");
@@ -362,7 +466,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Wrap reviews
     if (reviewSection) wrap(reviewSection, "so_tab_reviews", true);
-});
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", _soDetailTabsInit);
+} else {
+    _soDetailTabsInit();
+}
+
+function _soPreferGemstoneGalleryImage() {
+    const gallery = document.querySelector(".o_wsale_product_images");
+    if (!gallery || gallery.dataset.soGemstonePreferred) return;
+    gallery.dataset.soGemstonePreferred = "1";
+
+    const indicators = Array.from(
+        gallery.querySelectorAll(".carousel-indicators [data-bs-slide-to], .o_carousel_product_indicators [data-bs-slide-to]")
+    );
+    if (indicators.length < 2) return;
+
+    const target = indicators[1];
+
+    window.setTimeout(() => target.dispatchEvent(new MouseEvent("click", { bubbles: true })), 80);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", _soPreferGemstoneGalleryImage);
+} else {
+    _soPreferGemstoneGalleryImage();
+}
 
 // ─── Homepage tabs ────────────────────────────────────────────────────────────
 

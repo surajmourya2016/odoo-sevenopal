@@ -21,15 +21,19 @@
                     <t t-elif="prod.so_label_new"><div class="so_label_badge so_label_new_badge">New</div></t>
                     <t t-elif="prod.so_label_sale"><div class="so_label_badge so_label_sale_badge">Sale</div></t>
                     <!-- Out of stock -->
-                    <t t-if="prod.type in ('product', 'consu') and prod._fields.get('virtual_available') and prod.virtual_available &lt;= 0">
+                    <t t-if="not prod.so_allow_out_of_stock and prod.type in ('product', 'consu') and prod._fields.get('qty_available') and prod.qty_available &lt;= 0">
                         <div class="so_out_of_stock_overlay"><span>Out of Stock</span></div>
                     </t>
-                    <img
-                        t-attf-src="/web/image/product.template/{{ prod.id }}/image_512"
-                        t-att-alt="prod.name"
-                        class="img-fluid w-100 so_product_card_img"
-                        style="height:200px; object-fit:cover;"
-                    />
+                    <!-- CSS background-image: no browser spinner, smooth fade-in -->
+                    <t t-if="prod.image_1920">
+                        <div class="so_product_card_img"
+                             t-attf-style="background-image:url('/web/image/product.template/{{ prod.id }}/image_512');"/>
+                    </t>
+                    <t t-else="">
+                        <div class="so_card_no_img">
+                            <i class="fa fa-gem fa-2x"/>
+                        </div>
+                    </t>
                 </div>
                 <div class="so_product_card_body p-3">
                     <h6 class="so_product_card_name mb-1" t-out="prod.name"/>

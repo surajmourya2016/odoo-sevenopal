@@ -4,5 +4,6 @@ from . import metal_option
 from . import metal_design
 from . import ring_sizer
 from . import product_template
+from . import product_product
 from . import sale_order
 from . import sale_order_line

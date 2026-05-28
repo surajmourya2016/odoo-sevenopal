@@ -17,8 +17,9 @@
             ════════════════════════════════════════════════ -->
             <t t-if="product.so_enable_certification and product.so_certificate_ids">
                 <div class="o_wsale_product_details_content_section so_certification_section mb-4">
-                    <label class="so_section_title fw-bold text-uppercase mb-2 d-block">
-                        Certification
+                    <div class="so_section_divider mb-3"/>
+                    <label class="so_section_label">
+                        <i class="fa fa-certificate me-2"/>Choose Certification
                     </label>
                     <select
                         name="so_certificate_id"
@@ -50,8 +51,9 @@
             ════════════════════════════════════════════════ -->
             <t t-if="product.so_enable_ornament and product.so_ornament_ids">
                 <div class="o_wsale_product_details_content_section so_ornament_section mb-4">
-                    <label class="so_section_title fw-bold text-uppercase mb-2 d-block" style="color:#c0392b;">
-                        Select for Ring / Pendant
+                    <div class="so_section_divider mb-3"/>
+                    <label class="so_section_label">
+                        <i class="fa fa-diamond me-2"/>Select for Ring / Pendant
                     </label>
 
                     <!-- Ornament radio cards — loop all ornaments (first is auto-selected) -->
@@ -81,13 +83,16 @@
                                             />
                                         </t>
                                         <t t-elif="orn.name == 'Loose Gemstone'">
-                                            <i class="fa fa-gem fa-2x"/>
+                                            <i class="fa fa-gem fa-lg"/>
                                         </t>
                                         <t t-elif="orn.name == 'Ring'">
-                                            <i class="fa fa-circle fa-2x"/>
+                                            <span class="so_orn_emoji">💍</span>
+                                        </t>
+                                        <t t-elif="orn.name == 'Pendant'">
+                                            <span class="so_orn_emoji">📿</span>
                                         </t>
                                         <t t-else="">
-                                            <i class="fa fa-link fa-2x"/>
+                                            <i class="fa fa-star fa-lg"/>
                                         </t>
                                     </div>
                                     <span t-out="orn.name"/>
@@ -388,7 +393,7 @@
     >
         <!-- Style the description/accordion section heading -->
         <xpath expr="//div[hasclass('o_wsale_product_details_content_section_accordion')]" position="attributes">
-            <attribute name="class" add="so_product_desc_section"/>
+            <attribute name="class" add="so_product_desc_section" separator=" "/>
         </xpath>
     </template>
 
@@ -401,7 +406,7 @@
         name="SevenOpal – Product Breadcrumb"
     >
         <xpath expr="//ol[hasclass('o_wsale_breadcrumb')]" position="attributes">
-            <attribute name="class" add="so_breadcrumb_nav"/>
+            <attribute name="class" add="so_breadcrumb_nav" separator=" "/>
         </xpath>
     </template>
 
@@ -433,41 +438,33 @@
         inherit_id="website_sale.product_title"
         name="SevenOpal – Product Type Badges"
     >
-        <xpath expr="//h1[@t-field='product.name']" position="after">
-            <t t-if="product.so_is_fire_opal or product.so_is_calibrated_opal or product.so_is_jewellery or product.so_is_best_seller or product.so_is_new_arrival or product.so_is_special_offer">
-                <div class="so_type_badge_row d-flex flex-wrap gap-2 mb-3">
-                    <t t-if="product.so_is_fire_opal">
-                        <span class="so_type_badge so_badge_fire">
-                            <i class="fa fa-fire me-1"/>Fire Opal
-                        </span>
-                    </t>
-                    <t t-if="product.so_is_calibrated_opal">
-                        <span class="so_type_badge so_badge_calibrated">
-                            <i class="fa fa-th me-1"/>Calibrated
-                        </span>
-                    </t>
-                    <t t-if="product.so_is_jewellery">
-                        <span class="so_type_badge so_badge_jewellery">
-                            <i class="fa fa-diamond me-1"/>Jewellery
-                        </span>
-                    </t>
-                    <t t-if="product.so_is_best_seller">
-                        <span class="so_type_badge so_badge_bestseller">
-                            <i class="fa fa-star me-1"/>Best Seller
-                        </span>
-                    </t>
-                    <t t-if="product.so_is_new_arrival">
-                        <span class="so_type_badge so_badge_new">
-                            <i class="fa fa-tag me-1"/>New Arrival
-                        </span>
-                    </t>
-                    <t t-if="product.so_is_special_offer">
-                        <span class="so_type_badge so_badge_offer">
-                            <i class="fa fa-percent me-1"/>Special Offer
-                        </span>
-                    </t>
-                </div>
-            </t>
+        <xpath expr="//h1[@t-field='product.name']" position="before">
+            <!-- SKU + category row above title -->
+            <div class="so_product_meta_row d-flex align-items-center gap-2 mb-2 flex-wrap">
+                <t t-if="product.default_code">
+                    <span class="so_sku_chip">
+                        <i class="fa fa-barcode me-1"/>SKU: <t t-out="product.default_code"/>
+                    </span>
+                </t>
+                <t t-if="product.so_is_fire_opal">
+                    <span class="so_type_badge so_badge_fire"><i class="fa fa-fire me-1"/>Fire Opal</span>
+                </t>
+                <t t-if="product.so_is_calibrated_opal">
+                    <span class="so_type_badge so_badge_calibrated"><i class="fa fa-th me-1"/>Calibrated</span>
+                </t>
+                <t t-if="product.so_is_jewellery">
+                    <span class="so_type_badge so_badge_jewellery"><i class="fa fa-diamond me-1"/>Jewellery</span>
+                </t>
+                <t t-if="product.so_is_best_seller">
+                    <span class="so_type_badge so_badge_bestseller"><i class="fa fa-star me-1"/>Best Seller</span>
+                </t>
+                <t t-if="product.so_is_new_arrival">
+                    <span class="so_type_badge so_badge_new"><i class="fa fa-tag me-1"/>New Arrival</span>
+                </t>
+                <t t-if="product.so_is_special_offer">
+                    <span class="so_type_badge so_badge_offer"><i class="fa fa-percent me-1"/>Special Offer</span>
+                </t>
+            </div>
         </xpath>
     </template>
 

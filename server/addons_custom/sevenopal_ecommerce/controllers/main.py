@@ -43,8 +43,15 @@ class SevenopalController(http.Controller):
     )
     def get_designs(self, metal_option_id, **kwargs):
         """Return JSON list of active metal designs for the given metal option."""
+        domain = [('metal_option_id', '=', metal_option_id), ('active', '=', True)]
+        ornament_id = kwargs.get('ornament_id')
+        if ornament_id:
+            try:
+                domain.append(('ornament_id', '=', int(ornament_id)))
+            except (TypeError, ValueError):
+                pass
         designs = request.env['sevenopal.metal.design'].sudo().search(
-            [('metal_option_id', '=', metal_option_id), ('active', '=', True)],
+            domain,
             order='sequence, id',
         )
         result = [
@@ -60,6 +67,49 @@ class SevenopalController(http.Controller):
         return request.make_response(
             json.dumps(result),
             headers=[('Content-Type', 'application/json')],
+        )
+
+    @http.route(
+        '/sevenopal/update_line_by_product',
+        type='jsonrpc',
+        auth='public',
+        website=True,
+        methods=['POST'],
+    )
+    def update_line_by_product(
+        self,
+        product_template_id,
+        certificate_id=None,
+        certificate_charge=0,
+        ornament_id=None,
+        metal_option_id=None,
+        metal_design_id=None,
+        metal_design_price=0,
+        ring_size=None,
+        ring_size_system=None,
+        **kwargs,
+    ):
+        """Called after add-to-cart via add_to_cart_event.
+        Finds the most recently added line for the product and writes SevenOpal options."""
+        order = request.cart
+        if not order:
+            return {'error': 'No active cart'}
+
+        line = order.order_line.filtered(
+            lambda l: l.product_id.product_tmpl_id.id == int(product_template_id)
+        ).sorted(key=lambda l: l.id, reverse=True)[:1]
+
+        if not line:
+            return {'error': 'Line not found'}
+
+        return self._write_sevenopal_options(
+            line,
+            certificate_id=certificate_id,
+            ornament_id=ornament_id,
+            metal_option_id=metal_option_id,
+            metal_design_id=metal_design_id,
+            ring_size=ring_size,
+            ring_size_system=ring_size_system,
         )
 
     @http.route(
@@ -93,16 +143,34 @@ class SevenopalController(http.Controller):
         if not line:
             return {'error': 'Line not found'}
 
-        Certificate = request.env['sevenopal.certificate'].sudo()
-        Design = request.env['sevenopal.metal.design'].sudo()
+        return self._write_sevenopal_options(
+            line,
+            certificate_id=certificate_id,
+            ornament_id=ornament_id,
+            metal_option_id=metal_option_id,
+            metal_design_id=metal_design_id,
+            ring_size=ring_size,
+            ring_size_system=ring_size_system,
+        )
 
-        vals = {}
+    # ── Shared helper ─────────────────────────────────────────────────────────
+
+    def _write_sevenopal_options(
+        self, line,
+        certificate_id=None, ornament_id=None,
+        metal_option_id=None, metal_design_id=None,
+        ring_size=None, ring_size_system=None,
+    ):
+        Certificate = request.env['sevenopal.certificate'].sudo()
+        Design      = request.env['sevenopal.metal.design'].sudo()
+
+        vals        = {}
         extra_price = 0.0
 
         if certificate_id:
             cert = Certificate.browse(int(certificate_id)).exists()
             if cert:
-                vals['so_certificate_id'] = cert.id
+                vals['so_certificate_id']     = cert.id
                 charge = cert.charge if cert.cert_type == 'paid' else 0.0
                 vals['so_certificate_charge'] = charge
                 extra_price += charge
@@ -116,7 +184,7 @@ class SevenopalController(http.Controller):
         if metal_design_id:
             design = Design.browse(int(metal_design_id)).exists()
             if design:
-                vals['so_metal_design_id'] = design.id
+                vals['so_metal_design_id']    = design.id
                 vals['so_metal_design_price'] = design.price
                 extra_price += design.price
 
@@ -131,8 +199,4 @@ class SevenopalController(http.Controller):
                 vals['price_unit'] = line.price_unit + extra_price
             line.sudo().write(vals)
 
-        return {
-            'success': True,
-            'line_id': line.id,
-            'extra_price': extra_price,
-        }
+        return {'success': True, 'line_id': line.id, 'extra_price': extra_price}
